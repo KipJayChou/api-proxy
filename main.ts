@@ -14,7 +14,7 @@ const PROXY_PASSWORD = Deno.env.get("PROXY_PASSWORD");
 const PROXY_PORT = Deno.env.get("PROXY_PORT") || "8000";
 const AUTH_COOKIE_NAME = "api_proxy_auth_token";
 const avatarUrl = Deno.env.get("AVATAR_URL");
-
+const BackgroundUrl = Deno.env.get("Background_URL");
 if (!PROXY_DOMAIN) {
   const errorMsg = "错误: PROXY_DOMAIN 环境变量未设置。";
   console.error(errorMsg);
@@ -55,82 +55,87 @@ function generateLoginPage(errorMessage = ""): Response {
     ? `<p class="error-message">${errorMessage}</p>`
     : "";
   const html = `
-    <!DOCTYPE html>
-    <html lang="zh-CN">
-      <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>需要登录</title>
-        <style>
-          body {
-            font-family: Arial, sans-serif;
-            background-color: #f3f4f6;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-          }
-          .login-container {
-            background: white;
-            padding: 2rem;
-            border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            width: 300px;
-            text-align: center;
-          }
-          .avatar {
-            width: 100px;
-            height: 100px;
-            border-radius: 50%;
-            margin-bottom: 1rem;
-          }
-          h2 {
-            color: #1a202c;
-            font-size: 1.5rem;
-            margin-bottom: 1rem;
-          }
-          input[type="password"] {
-            width: 100%;
-            padding: 0.5rem;
-            margin: 0.5rem 0;
-            border: 1px solid #cbd5e0;
-            border-radius: 4px;
-          }
-          button {
-            width: 100%;
-            padding: 0.75rem;
-            background-color: #4299e1;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 1rem;
-          }
-          button:hover {
-            background-color: #2b6cb0;
-          }
-          .error-message {
-            color: #f87171;
-            margin-top: 15px;
-            font-weight: bold;
-          }
-        </style>
-      </head>
-      <body>
-        <div class="login-container">
-          <img src="${avatarUrl}" alt="Avatar" class="avatar">
-          <h2>需要登录</h2>
-          <p>请输入密码以访问 API 代理。</p>
-          <form action="/login" method="post">
-            <label for="password">密码:</label><br>
-            <input type="password" id="password" name="password" required><br>
-            <button type="submit">登录</button>
-          </form>
-          ${errorHtml}
-        </div>
-      </body>
-    </html>
+ <!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>需要登录</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background-image: url(${BackgroundUrl});  /* 这里用你的 avatarUrl 作为背景图片 */
+        background-size: cover;  /* 让图片覆盖整个背景 */
+        background-position: center;  /* 居中对齐 */
+        background-repeat: no-repeat;  /* 别TM的重复 */
+        background-color: #f3f4f6;  /* 保留原来的背景色作为备选 */
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        margin: 0;
+      }
+      .login-container {
+        background: white;  /* 保持容器白色，这样背景图片不会干扰登录框 */
+        padding: 2rem;
+        border-radius: 8px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        width: 300px;
+        text-align: center;
+      }
+      .avatar {
+        width: 100px;
+        height: 100px;
+        border-radius: 50%;
+        margin-bottom: 1rem;
+      }
+      h2 {
+        color: #1a202c;
+        font-size: 1.5rem;
+        margin-bottom: 1rem;
+      }
+      input[type="password"] {
+        width: 100%;
+        padding: 0.5rem;
+        margin: 0.5rem 0;
+        border: 1px solid #cbd5e0;
+        border-radius: 4px;
+      }
+      button {
+        width: 100%;
+        padding: 0.75rem;
+        background-color: #4299e1;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 1rem;
+      }
+      button:hover {
+        background-color: #2b6cb0;
+      }
+      .error-message {
+        color: #f87171;
+        margin-top: 15px;
+        font-weight: bold;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="login-container">
+      <img src="${avatarUrl}" alt="Avatar" class="avatar">
+      <h2>需要登录</h2>
+      <p>请输入密码以访问 API 代理。</p>
+      <form action="/login" method="post">
+        <label for="password">密码:</label><br>
+        <input type="password" id="password" name="password" required><br>
+        <button type="submit">登录</button>
+      </form>
+      ${errorHtml}
+    </div>
+  </body>
+</html>
+
     `;
   return new Response(html, {
     status: 401,
@@ -320,11 +325,11 @@ async function handleDashboardPage(
         <title>API 代理仪表板</title>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <meta name="description" content="API 代理服务状态面板">
-        <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⚡</text></svg>">
+        <meta name="description" content="API仪表盘">
+        <link rel="icon" href="https://img20.360buyimg.com/openfeedback/jfs/t1/283103/39/20212/8096/67ff8a06F4bc07dae/b1440c3d38af2449.jpg">
         <style>
             :root {
-                --bg-url: url('https://raw.githubusercontent.com/Nshpiter/docker-accelerate/refs/heads/main/background.jpg');
+                --bg-url: url('https://img20.360buyimg.com/openfeedback/jfs/t1/276319/24/22157/20161/67ff918cF26b49eab/18300e3b364ca95c.jpg');
                 --primary-glow-start: rgba(59, 130, 246, 0.4); /* Blue */
                 --primary-glow-end: rgba(139, 92, 246, 0.4); /* Purple */
                 --card-bg: rgba(30, 41, 59, 0.4); /* Slate-800 with transparency */
@@ -525,13 +530,13 @@ async function handleDashboardPage(
         <div class="overlay">
             <header class="header">
                 <h1>API 代理仪表板</h1>
-                <p>管理和监控您的 API 代理端点</p>
+                <p>支持gemini chatgpt perplexity xai</p>
             </header>
             <main class="container">
                 ${cardsHtml}
             </main>
             <footer class="footer">
-                © ${new Date().getFullYear()} API 代理服务 - powered by <a href="https://jxufe.icu/u/piter/summary" target="_blank" rel="noopener noreferrer">piter</a>
+                © ${new Date().getFullYear()} API Proxy - powered by <a href="https://jxufe.icu/u/jay/summary" target="_blank" rel="noopener noreferrer">Jay</a> & <a href="https://deno.land" target="_blank" rel="noopener noreferrer">deno</a>
             </footer>
         </div>
 
