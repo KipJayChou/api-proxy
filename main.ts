@@ -13,6 +13,7 @@ const PROXY_DOMAIN = Deno.env.get("PROXY_DOMAIN");
 const PROXY_PASSWORD = Deno.env.get("PROXY_PASSWORD");
 const PROXY_PORT = Deno.env.get("PROXY_PORT") || "8000";
 const AUTH_COOKIE_NAME = "api_proxy_auth_token";
+const avatarUrl = Deno.env.get("AVATAR_URL");
 
 if (!PROXY_DOMAIN) {
   const errorMsg = "错误: PROXY_DOMAIN 环境变量未设置。";
@@ -55,28 +56,82 @@ function generateLoginPage(errorMessage = ""): Response {
     : "";
   const html = `
     <!DOCTYPE html>
-    <html>
-    <head>
-        <title>需要登录</title>
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <html lang="zh-CN">
+      <head>
         <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>需要登录</title>
         <style>
-            body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Oxygen,Ubuntu,Cantarell,'Open Sans','Helvetica Neue',sans-serif;display:flex;justify-content:center;align-items:center;min-height:100vh;margin:0;background-image:url('https://raw.githubusercontent.com/Nshpiter/docker-accelerate/refs/heads/main/background.jpg');background-size:cover;background-position:center;background-repeat:no-repeat}.login-container{background-color:rgba(255,255,255,.05);padding:30px 40px;border-radius:12px;box-shadow:0 6px 20px rgba(0,0,0,.1);text-align:center;max-width:380px;width:90%;backdrop-filter:blur(5px);border:1px solid rgba(255,255,255,.1)}h2{color:#f0f9ff;margin-bottom:20px;font-weight:600;text-shadow:1px 1px 3px rgba(0,0,0,.5)}p{color:#e2e8f0;margin-bottom:25px}form{display:flex;flex-direction:column}label{text-align:left;margin-bottom:8px;color:#e2e8f0;font-weight:bold;font-size:14px}input[type=password]{padding:12px 15px;margin-bottom:18px;border:1px solid rgba(255,255,255,.2);background-color:rgba(255,255,255,.1);color:#fff;border-radius:6px;font-size:16px;box-sizing:border-box}input:focus{outline:none;border-color:#60a5fa;box-shadow:0 0 0 2px rgba(96,165,250,.3)}button{padding:12px;background:linear-gradient(45deg,#3b82f6,#8b5cf6);color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:16px;font-weight:600;transition:background .3s ease,transform .2s ease;margin-top:10px}button:hover{background:linear-gradient(45deg,#2563eb,#7c3aed);transform:scale(1.02)}.error-message{color:#f87171;margin-top:15px;font-weight:bold}
+          body {
+            font-family: Arial, sans-serif;
+            background-color: #f3f4f6;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+          }
+          .login-container {
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            width: 300px;
+            text-align: center;
+          }
+          .avatar {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            margin-bottom: 1rem;
+          }
+          h2 {
+            color: #1a202c;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+          }
+          input[type="password"] {
+            width: 100%;
+            padding: 0.5rem;
+            margin: 0.5rem 0;
+            border: 1px solid #cbd5e0;
+            border-radius: 4px;
+          }
+          button {
+            width: 100%;
+            padding: 0.75rem;
+            background-color: #4299e1;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1rem;
+          }
+          button:hover {
+            background-color: #2b6cb0;
+          }
+          .error-message {
+            color: #f87171;
+            margin-top: 15px;
+            font-weight: bold;
+          }
         </style>
-    </head>
-    <body>
+      </head>
+      <body>
         <div class="login-container">
-            <h2>需要登录</h2>
-            <p>请输入密码以访问 API 代理。</p>
-            <form action="/login" method="post">
-                <label for="password">密码:</label>
-                <input type="password" id="password" name="password" required>
-                <button type="submit">登录</button>
-            </form>
-            ${errorHtml}
+          <img src="${avatarUrl}" alt="Avatar" class="avatar">
+          <h2>需要登录</h2>
+          <p>请输入密码以访问 API 代理。</p>
+          <form action="/login" method="post">
+            <label for="password">密码:</label><br>
+            <input type="password" id="password" name="password" required><br>
+            <button type="submit">登录</button>
+          </form>
+          ${errorHtml}
         </div>
-    </body>
-    </html>`;
+      </body>
+    </html>
+    `;
   return new Response(html, {
     status: 401,
     headers: { "Content-Type": "text/html; charset=UTF-8" },
