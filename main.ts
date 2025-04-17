@@ -2,6 +2,7 @@ import { serve } from "https://deno.land/std/http/server.ts";
 import { serveFile } from "https://deno.land/std/http/file_server.ts";
 
 // --- Configuration ---
+// PROXY_DOMAIN= PROXY_PASSWORD= PROXY_PORT= AVATAR_URL="" Background_URL="" deno run --allow-net --allow-env main.ts
 const apiMapping = {
   "/xai": "https://api.x.ai",
   "/openai": "https://api.openai.com",
@@ -199,6 +200,13 @@ async function main(request: Request): Promise<Response> {
     });
   }
 
+    if (pathname === "/status") {
+    return new Response("OK", {
+      status: 200,
+      headers: { "Content-Type": "text/plain" },
+    });
+  }
+  
   if (pathname.startsWith("/public/")) {
     if (pathname.includes("..")) {
       return new Response("Forbidden", { status: 403 });
